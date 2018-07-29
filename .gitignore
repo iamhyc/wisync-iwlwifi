@@ -1,0 +1,15 @@
+.vscode
+deepin-kernel
+*.ko
+*.o
+*.out
+*.o.d
+*.o.cmd
+*.ko.cmd
+*.order
+*.mod.c
+*.symvers
+*.cache.mk
+.tmp_versions
+linux-image-*.deb
+linux-headers-*.deb

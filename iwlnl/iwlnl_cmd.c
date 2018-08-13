@@ -60,10 +60,11 @@ int main(int argc, char *argv[])
         }
     }
 
-    nlsock_init();
+    nlsock_init(0);
     
     genTxMsg(&msg, queue, aifs, cw_min, cw_max);
     
     ret = sendTxMsg(msg);
+
     return 0;
 }

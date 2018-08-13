@@ -10,6 +10,7 @@ LIBS = $(GENL_LIBS)
 all:
 	$(CC) -o iwlnl_cmd iwlnl_cmd.c iwlnl.c $(CFLAGS) $(LIBS)
 	$(CC) -o iwlnl_ctrl iwlnl_ctrl.c iwlnl.c $(CFLAGS) $(LIBS)
+	$(CC) -o iwlnl_script iwlnl_script.c iwlnl.c $(CFLAGS) $(LIBS)
 
 clean:
 	$(RM) ,*.sw? $(OBJS)

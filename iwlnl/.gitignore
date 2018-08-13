@@ -1,4 +1,5 @@
 iwlnl
 iwlnl_cmd
 iwlnl_ctrl
+iwlnl_script
 *.o

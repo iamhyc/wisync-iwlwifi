@@ -8,6 +8,10 @@
 #define CTRL_PORT   13333
 #define CTRL_MARGIN 50//us
 
+#define MSG_LAST    0x01
+#define MSG_RESET   0x02
+#define MSG_PRIOR   0x04
+
 typedef struct CtrlPak
 {
     uint32_t period;
@@ -29,7 +33,8 @@ int sendTxMsg(struct nl_msg* msg);
 void genTxMsg(struct nl_msg** msg, \
               int queue, int aifs, int cw_min, int cw_max);
 
-int nlsock_init(void);
+int nlsock_init(int);
+int nlsock_set_last(void);
 int nlsock_set_prior(void);
 int nlsock_reset_prior(void);
 

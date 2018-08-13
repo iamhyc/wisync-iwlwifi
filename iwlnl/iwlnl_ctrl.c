@@ -264,7 +264,7 @@ int main(int argc, char const *argv[])
     pthread_t echo_t, ctrl_t;
     param_t param = {0};
 
-    nlsock_init();
+    nlsock_init(MSG_PRIOR|MSG_RESET);
     pthread_mutex_init(&g_mutex, NULL);
     pthread_cond_init(&g_cond, NULL);
 
@@ -282,7 +282,7 @@ int main(int argc, char const *argv[])
 
     pthread_join(echo_t, NULL);
     pthread_join(ctrl_t, NULL);
-    nlsock_init();
+    nlsock_init(MSG_PRIOR|MSG_RESET);
     pthread_mutex_destroy(&g_mutex);
     pthread_cond_destroy(&g_cond);
     return 0;

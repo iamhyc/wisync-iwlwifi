@@ -28,7 +28,7 @@ build-usr:
 
 install:
 	sudo dpkg -i linux-image-*$(KERVER)*.deb
-	sudo dpkg -i linux-header-*$(KERVER)*.deb
+	sudo dpkg -i linux-headers-*$(KERVER)*.deb
 
 route:
 	./script/ip_route.sh

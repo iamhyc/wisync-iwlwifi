@@ -31,6 +31,7 @@ int main(int argc, char const *argv[])
             nlsock_set_last();
             break;
         default:
+            nlsock_init(MSG_PRIOR | MSG_LAST | MSG_RESET);
             break;
     }
     

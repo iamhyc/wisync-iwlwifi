@@ -2786,28 +2786,31 @@ static int iwl_mvm_mac_conf_tx(struct ieee80211_hw *hw,
 		.aifs = 0, //255
 		.acm = params->acm, //false
 		.uapsd = params->uapsd //false
-	}; */
-	if(ac==0 && params->txop!=0)
+	}; */	
+	conf_tx_counter ++;
+	if(ac==0 && params->txop==0)
 	{
 		mvmvif->queue_params[0] = *params;
 		mvmvif->queue_params[1] = *params;
 		mvmvif->queue_params[2] = *params;
 		mvmvif->queue_params[3] = *params;
-	}
-	else
-	{
-		mvmvif->queue_params[ac] = *params;		
-	}
-	
-	conf_tx_counter ++;
-	if (conf_tx_counter & 0x0FFF == 0) //NOTE: reduce debug output to every 4096 times
-	{
-		printk(KERN_LOG "ctx update (type-%d, AC-%d) (%d, %d, [%d, %d])\n", \
-			vif->type, ac, \
+
+		printk(KERN_LOG " ALL CTX UPDATE (type-%d, %d, [%d, %d])\n", \
+			vif->type, \
 			mvmvif->queue_params[ac].txop, \
 			mvmvif->queue_params[ac].aifs, \
 			mvmvif->queue_params[ac].cw_min, \
 			mvmvif->queue_params[ac].cw_max);
+	}
+	else if (conf_tx_counter & 0x0FFF == 0) //NOTE: reduce debug output to every 4096 times
+	{
+		mvmvif->queue_params[ac] = *params;
+		printk(KERN_LOG " AC%d CTX UPDATE (type-%d, %d, %d, [%d, %d])\n", \
+			ac, vif->type, \
+			mvmvif->queue_params[ac].txop, \
+			mvmvif->queue_params[ac].aifs, \
+			mvmvif->queue_params[ac].cw_min, \
+			mvmvif->queue_params[ac].cw_max);		
 	}
 
 	/*

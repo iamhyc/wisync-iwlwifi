@@ -59,23 +59,23 @@ int nlsock_init(int msg_type)
     if((msg_type & MSG_PRIOR) != 0)
     {
         genTxMsg(&z_msg[0], 0, 0, 1, 1);
-        genTxMsg(&z_msg[1], 1, 0, 1, 1);
-        genTxMsg(&z_msg[2], 2, 0, 1, 1);
-        genTxMsg(&z_msg[3], 3, 0, 1, 1);
+        // genTxMsg(&z_msg[1], 1, 0, 1, 1);
+        // genTxMsg(&z_msg[2], 2, 0, 1, 1);
+        // genTxMsg(&z_msg[3], 3, 0, 1, 1);
     }
     if((msg_type & MSG_RESET) != 0)
     {
         genTxMsg(&g_msg[0], 0, 2, 3,  7);
-        genTxMsg(&g_msg[1], 1, 2, 7,  15);
-        genTxMsg(&g_msg[2], 2, 3, 15, 1023);
-        genTxMsg(&g_msg[3], 3, 7, 15, 1023);
+        // genTxMsg(&g_msg[1], 1, 2, 7,  15);
+        // genTxMsg(&g_msg[2], 2, 3, 15, 1023);
+        // genTxMsg(&g_msg[3], 3, 7, 15, 1023);
     }
     if((msg_type & MSG_LAST) != 0)
     {
         genTxMsg(&l_msg[0], 0, 255, 2047, 8191);
-        genTxMsg(&l_msg[1], 1, 255, 2047, 8191);
-        genTxMsg(&l_msg[2], 2, 255, 2047, 8191);
-        genTxMsg(&l_msg[3], 3, 255, 2047, 8191);
+        // genTxMsg(&l_msg[1], 1, 255, 2047, 8191);
+        // genTxMsg(&l_msg[2], 2, 255, 2047, 8191);
+        // genTxMsg(&l_msg[3], 3, 255, 2047, 8191);
     }
 
     return 0;
@@ -85,9 +85,9 @@ int nlsock_set_prior()
 {
     int ret;
     ret = nl_send_auto_complete(sock, z_msg[0]);
-    ret = nl_send_auto_complete(sock, z_msg[1]);
-    ret = nl_send_auto_complete(sock, z_msg[2]);
-    ret = nl_send_auto_complete(sock, z_msg[3]);
+    // ret = nl_send_auto_complete(sock, z_msg[1]);
+    // ret = nl_send_auto_complete(sock, z_msg[2]);
+    // ret = nl_send_auto_complete(sock, z_msg[3]);
     return ret;
 }
 
@@ -95,9 +95,9 @@ int nlsock_reset_prior()
 {
     int ret;
     ret = nl_send_auto_complete(sock, g_msg[0]);
-    ret = nl_send_auto_complete(sock, g_msg[1]);
-    ret = nl_send_auto_complete(sock, g_msg[2]);
-    ret = nl_send_auto_complete(sock, g_msg[3]);
+    // ret = nl_send_auto_complete(sock, g_msg[1]);
+    // ret = nl_send_auto_complete(sock, g_msg[2]);
+    // ret = nl_send_auto_complete(sock, g_msg[3]);
     return ret;
 }
 
@@ -105,8 +105,8 @@ int nlsock_set_last()
 {
     int ret;
     ret = nl_send_auto_complete(sock, l_msg[0]);
-    ret = nl_send_auto_complete(sock, l_msg[1]);
-    ret = nl_send_auto_complete(sock, l_msg[2]);
-    ret = nl_send_auto_complete(sock, l_msg[3]);
+    // ret = nl_send_auto_complete(sock, l_msg[1]);
+    // ret = nl_send_auto_complete(sock, l_msg[2]);
+    // ret = nl_send_auto_complete(sock, l_msg[3]);
     return ret;
 }

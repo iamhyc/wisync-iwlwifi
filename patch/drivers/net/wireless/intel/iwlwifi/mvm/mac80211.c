@@ -2777,7 +2777,8 @@ static int iwl_mvm_mac_conf_tx(struct ieee80211_hw *hw,
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
-
+	int allUpdate = 0;
+	// struct timespec t0, t1;
 	/* struct ieee80211_tx_queue_params fake_params =
 	{
 		.txop = 0,
@@ -2786,10 +2787,11 @@ static int iwl_mvm_mac_conf_tx(struct ieee80211_hw *hw,
 		.aifs = 0, //255
 		.acm = params->acm, //false
 		.uapsd = params->uapsd //false
-	}; */	
+	}; */
 	conf_tx_counter ++;
 	if(ac==0 && params->txop==0)
 	{
+		allUpdate = 1; //set the flag on
 		mvmvif->queue_params[0] = *params;
 		mvmvif->queue_params[1] = *params;
 		mvmvif->queue_params[2] = *params;
@@ -2820,9 +2822,14 @@ static int iwl_mvm_mac_conf_tx(struct ieee80211_hw *hw,
 	 */
 	if (vif->type == NL80211_IFTYPE_P2P_DEVICE || vif->type == NL80211_IFTYPE_AP || vif->type == NL80211_IFTYPE_STATION) {
 		int ret;
+			// getnstimeofday(&t0);
+			IWL_DEBUG_INFO(mvm,
+						"CTX Update %d\n", allUpdate);
 		mutex_lock(&mvm->mutex);
 		ret = iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
 		mutex_unlock(&mvm->mutex);
+			// getnstimeofday(&t1);
+			// printk(KERN_LOG "used time: 0.%09ld\n", t1.tv_nsec-t0.tv_nsec);
 		return ret;
 	}
 	return 0;

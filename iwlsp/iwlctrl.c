@@ -9,7 +9,9 @@
 #include <termios.h>
 #include <errno.h>
 #include <string.h>
-#include "iwlnl.h"
+
+#include "iwlctrl.h"
+#include "wlsctrl.h"
 
 #define BUFLEN 24
 
@@ -42,66 +44,6 @@ inline int timeadd_usec(struct timeval *tt, long usec)
         tt->tv_usec -= (long)1E6;
     }
     return 0;
-}
-
-void *ctrl_thread(void *arg)
-{
-    int stat = -1;
-    long t_prior=0, t_reset=0;
-    struct timeval now, tmp;
-    param_t *param = (param_t *)arg;
-
-    while(1)
-    {
-        if (param->updated) //update when could
-        {
-            stat = 0;
-            param->updated = 0; //disable update flag
-        }
-
-        pthread_mutex_lock(&g_mutex);
-        switch(stat)
-        {
-            case -1://init wait loop
-                gettimeofday((struct timeval *)&now, NULL);
-                now.tv_sec += 10; //long wait sleep
-                printf("in wait loop...\n");
-                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
-                break;
-            case 0://sync sleep
-                ++ stat;
-                t_prior = param->ctrlpak.duration;
-                t_reset = param->ctrlpak.period - t_prior;
-                printf("p-%ld, r-%ld\n", t_prior, t_reset);
-                gettimeofday((struct timeval *)&now, NULL);
-                // timersub(&now, &(param->ti), &tmp);
-                // timeadd_usec(&now,
-                //     param->ctrlpak.period
-                //     -(tmp.tv_sec*1000000 + tmp.tv_usec) % param->ctrlpak.period
-                //     +param->ctrlpak.offset - CTRL_MARGIN);
-                timeadd_usec(&now, param->ctrlpak.offset);
-                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
-                printf("sync finished\n");
-                break;
-            case 1://prior sleep
-                ++ stat;
-                gettimeofday((struct timeval *)&now, NULL);
-                nlsock_set_prior(); //NOTE: priorized here
-                timeadd_usec(&now, t_prior);
-                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
-                break;
-            case 2://reset sleep
-                -- stat; //loop
-                gettimeofday((struct timeval *)&now, NULL);
-                nlsock_reset_prior(); //NOTE: reset priority here
-                timeadd_usec(&now, t_reset);
-                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
-                break;
-            default:
-                stat = 0;
-        }
-        pthread_mutex_unlock(&g_mutex);
-    }
 }
 
 int serial_open(const char *port)
@@ -201,6 +143,60 @@ int serial_send(int fd, char *send_buf, int len)
     }
 }
 
+void *ctrl_thread(void *arg)
+{
+    int stat = -1;
+    long t_prior=0, t_reset=0;
+    struct timeval now;
+    param_t *param = (param_t *)arg;
+
+    while(1)
+    {
+        if (param->updated) //update when could
+        {
+            stat = 0;
+            param->updated = 0; //disable update flag
+        }
+
+        pthread_mutex_lock(&g_mutex);
+        switch(stat)
+        {
+            case -1://init wait loop
+                gettimeofday((struct timeval *)&now, NULL);
+                now.tv_sec += 10; //long wait sleep
+                printf("in wait loop...\n");
+                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
+                break;
+            case 0://sync sleep
+                ++ stat;
+                t_prior = param->ctrlpak.duration;
+                t_reset = param->ctrlpak.period - t_prior;
+                printf("p-%ld, r-%ld\n", t_prior, t_reset);
+                gettimeofday((struct timeval *)&now, NULL);
+                timeadd_usec(&now, param->ctrlpak.offset);
+                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
+                printf("sync finished\n");
+                break;
+            case 1://prior sleep
+                ++ stat;
+                gettimeofday((struct timeval *)&now, NULL);
+                w_setTxPrior(); //NOTE: priorized here
+                timeadd_usec(&now, t_prior);
+                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
+                break;
+            case 2://reset sleep
+                -- stat; //loop
+                gettimeofday((struct timeval *)&now, NULL);
+                w_setTxNormal(); //NOTE: reset priority here
+                timeadd_usec(&now, t_reset);
+                pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
+                break;
+            default:
+                stat = 0;
+        }
+        pthread_mutex_unlock(&g_mutex);
+    }
+}
 
 void* echo_thread(void *arg)
 {
@@ -231,22 +227,6 @@ void* echo_thread(void *arg)
         gettimeofday(&t0, NULL);
         param->ctrlpak = *cpak;
         printf("%d, %d, %d\n", cpak->duration, cpak->offset, cpak->period);
-
-        // //period 1, echo
-        // if (serial_send(fd, buf, sizeof(ctrlpak_t)) < 0)
-        // {
-        //     printf("serial echo_send error\n");          
-        //     continue;
-        // }
-
-        // //period 2
-        // if ( (recv_len=serial_recv(fd, buf, sizeof(uint32_t))) < 0)
-        // {
-        //     perror("serial time_recv error");          
-        //     continue;
-        // }
-        // timesub_usec(&t0, *(long *)buf);
-        // param->ti = t0;
         
         //update now
         pthread_mutex_lock(&g_mutex);
@@ -260,13 +240,17 @@ void* echo_thread(void *arg)
 
 int main(int argc, char const *argv[])
 {
-    int ret;
+    int ret, fd;
     pthread_t echo_t, ctrl_t;
     param_t param = {0};
 
-    nlsock_init(MSG_PRIOR|MSG_RESET);
     pthread_mutex_init(&g_mutex, NULL);
     pthread_cond_init(&g_cond, NULL);
+
+    if ((fd = w_init()) < 0)
+    {
+        return -1;
+    }
 
     if ((ret = pthread_create(&echo_t, NULL, echo_thread, &param)) < 0)
     {
@@ -282,8 +266,9 @@ int main(int argc, char const *argv[])
 
     pthread_join(echo_t, NULL);
     pthread_join(ctrl_t, NULL);
-    nlsock_init(MSG_PRIOR|MSG_RESET);
+    
     pthread_mutex_destroy(&g_mutex);
     pthread_cond_destroy(&g_cond);
+    close(fd);
     return 0;
 }

@@ -1,44 +1,47 @@
 SHELL=/bin/bash
-APT=apt-fast
-KERVER=v0
+APT=apt-get
+SET=1
 
-all:build-dep build-krn install
+all:build-dep build-krn build-usr
 
 build-dep:
-	@echo "============== [apt] Installing Build Dependency =============="
-	@sudo $(APT) install build-essential fakeroot libssl-dev qt5-default gcc-7-plugin-dev cmake libnl-3-dev libnl-genl-3-dev libelf-dev -y
-
-	@echo "============== [apt] Installing Pacakge Dependency =============="
-	@sudo $(APT) install kernel-package libncurses5-dev bison flex quilt pkg-config -y
-
-	@echo "============== [git] Fetching deepin-kernel =============="
-	@git clone https://github.com/linuxdeepin/deepin-kernel.git --branch=4.14.12 --depth=1 \
-	&& cd deepin-kernel && make -f debian/rules orig && cd .. \
-	&& rm -rf orig && rm -rf deepin-kernel/.git && rm -f *.tar.xz \
-	&& cp -r patch/* deepin-kernel/
-
-	@echo "============== Installing Finished =============="
+	@echo "================== [apt] Installing Build Dependency =================="
+	@sudo $(APT) install linux-headers-$(shell uname -r) build-essential fakeroot libelf-dev -y 1>/dev/null
+	git submodule init && git submodule update
+	@echo "====================== [apt] Installing Finished ======================"
+	@echo
 
 build-krn:
-	./script/build_kernel.sh $(KERVER)
+	@echo "==================== [make] Building Kernel Module ===================="
+	$(MAKE) -C iwlnf SET=$(SET)
+	$(MAKE) -C wlsops-hack build-krn
+	@echo "======================= [make] Building Finished ======================="
+	@echo
 
 build-usr:
-	cd iwlnf; make; cd ..
-	cd iwlnl; make; cd ..
+	@echo "=================== [make] Building Control Programm ==================="
+	$(MAKE) -C iwlsp
+	$(MAKE) -C wlsops-hack build-usr
+	@echo "======================= [make] Building Finished ======================="
+	@echo
 
 install:
-	sudo dpkg -i linux-image-*$(KERVER)*.deb
-	sudo dpkg -i linux-headers-*$(KERVER)*.deb
+	sudo cp -f script/wlsmon /usr/bin/wlsmon
+	$(MAKE) -C wlsops-hack install
+
+clean:
+	$(MAKE) -C iwlnf clean
+	$(MAKE) -C iwlsp clean
 
 route:
-	./script/ip_route.sh
+	sudo route del default enp0s31f6
 
 start:route
-	# ./script/init_ap.sh
-	cd iwlnf; make insmod; cd ..
-	cd iwlnl; make start; cd ..
+	$(MAKE) -C wlsops-hack insmod
+	$(MAKE) -C iwlnf insmod
+	$(MAKE) -C iwlsp start
 
 stop:
-	# ./script/fini_ap.sh
-	cd iwlnl; make stop; cd ..
-	cd iwlnf; make rmmod; cd ..
+	$(MAKE) -C iwlsp stop
+	$(MAKE) -C iwlnf rmmod
+	$(MAKE) -C wlsops-hack rmmod

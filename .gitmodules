@@ -1,0 +1,3 @@
+[submodule "wlsops-hack"]
+	path = wlsops-hack
+	url = git@github.com:iamhyc/wlsops-hack.git

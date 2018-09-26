@@ -1,6 +1,6 @@
 
-#ifndef __IWLNL_H__
-#define __IWLNL_H__
+#ifndef __IWLCTRL_H__
+#define __IWLCTRL_H__
 
 #include <stdlib.h>
 #include <stdint.h>

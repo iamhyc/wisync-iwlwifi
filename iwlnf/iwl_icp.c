@@ -53,9 +53,9 @@ static int __init iwlnf_init(void)
 
     // tmp_dev = dev_get_by_name(&init_net, TMP_DEV);
     MaskAddr = IP2NUM(FIXED_MASKADDR);
-    if ((RealAddr = getIfAddr(IF_TARGET)) == 0)
+    if ((RealAddr = getWlsAddr("wls")) == 0)
     {
-        printh(IF_TARGET " not exist.\n");
+        printh("wlsif not exist.\n");
         return 0;
     }
     printk("0x%08x, 0x%08x\n", RealAddr, MaskAddr);

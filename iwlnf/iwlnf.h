@@ -13,6 +13,7 @@
 #include <linux/inet.h>
 #include <net/ip.h>
 #include <net/tcp.h>
+#include <net/cfg80211.h>
 //#include <asm-generic/checksum.h>
 
 #define KEYWORD "[iwlnf]"
@@ -59,19 +60,22 @@ inline void NUM2IP(u32 addr, char *str)
     snprintf(str, 16, "%pI4", &addr);
 }
 
-u32 getIfAddr(const char *if_name)
+u32 getWlsAddr(const char *if_name)
 {
     u32 ipv4 = 0;
     struct net_device* dev;
     struct in_device* pdev;
 
-    dev = dev_get_by_name(&init_net, if_name);
-    if(dev && netif_running(dev) && (dev->ip_ptr!=NULL))
+    for_each_netdev(&init_net, dev)
     {
-        pdev = (struct in_device *)dev->ip_ptr;
-        if(pdev->ifa_list)
+        if( (dev->ieee80211_ptr) && netif_running(dev) && (dev->ip_ptr!=NULL))
         {
-            ipv4 = pdev->ifa_list->ifa_address;
+            pdev = (struct in_device *)dev->ip_ptr;
+            if(pdev->ifa_list)
+            {
+                ipv4 = pdev->ifa_list->ifa_address;
+                break;
+            }
         }
     }
 

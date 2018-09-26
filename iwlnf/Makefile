@@ -1,3 +1,5 @@
+SET=1
+
 # AES Hook Makefile
 ifneq ($(KERNELRELEASE),)
 	obj-m := iwlmod_icp.o iwlmod_inj.o
@@ -10,6 +12,7 @@ else
 all:build-krn
 
 build-krn:
+	cp -f IWLINC.h.$(SET) IWLINC.h
 	$(MAKE) -C $(KDIR) M=$(PWD)
 
 insmod:

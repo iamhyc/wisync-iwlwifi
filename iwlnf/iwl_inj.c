@@ -64,9 +64,9 @@ static int __init iwlnf_init(void)
     printh("iwlnf injection init ...\n");
 
     MaskAddr = IP2NUM(FIXED_MASKADDR);
-    if ((RealAddr = getIfAddr(IF_TARGET)) == 0)
+    if ((RealAddr = getWlsAddr("wls")) == 0)
     {
-        printh(IF_TARGET " not exist.\n");
+        printh("wlsif not exist.\n");
         return 0;
     }
 

@@ -1,9 +1,0 @@
-{
-	"cap_iface":"Intel(R) I210 Gigabit Network Connection",
-	"frame":"IB",
-	"udp_port":10086,
-
-	"reg_port_tx":11112,
-	"reg_port_rx":11113,
-	"server_addr": "192.168.0.2"
-}

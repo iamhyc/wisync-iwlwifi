@@ -34,14 +34,15 @@ clean:
 	$(MAKE) -C iwlsp clean
 
 route:
-	echo `sudo route del default enp0s31f6`
+	@echo `sudo route del default enp0s31f6 2> /dev/null` >/dev/null
+	@echo "[route] default wired route deleted"
 
 start:route
-	$(MAKE) -C wlsops-hack insmod
-	$(MAKE) -C iwlnf insmod
-	$(MAKE) -C iwlsp start
+	@$(MAKE) -C wlsops-hack insmod
+	@$(MAKE) -C iwlnf insmod
+	@$(MAKE) -C iwlsp start
 
 stop:
-	$(MAKE) -C iwlsp stop
-	$(MAKE) -C iwlnf rmmod
-	$(MAKE) -C wlsops-hack rmmod
+	@$(MAKE) -C iwlsp stop
+	@$(MAKE) -C iwlnf rmmod
+	@$(MAKE) -C wlsops-hack rmmod

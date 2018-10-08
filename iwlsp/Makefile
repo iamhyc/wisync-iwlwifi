@@ -14,4 +14,5 @@ start:
 	sudo ./iwlctrl &
 
 stop:
-	sudo pkill iwlctrl
+	@echo `sudo pkill iwlctrl` >/dev/null
+	@echo '[iwlctrl] process "iwlctrl" killed'

@@ -5,9 +5,9 @@ from Utility import *
 import pydivert
 
 DBG = 0
-CAP_IFACE = "Intel(R) Ethernet Connection I217-LM"
+CAP_IFACE = 'Intel(R) Ethernet Connection I217-LM'
 PROXY_PORT = [10086, 10087]
-PROXY_ADDR = ["192.168.0.220", "192.168.0.221"]
+PROXY_ADDR = ['192.168.0.220', '192.168.0.221']
 
 def get_raw(packet):
     return bytearray(packet.raw)
@@ -32,7 +32,7 @@ def run_thread(pkt_q):
     
     pass
 
-def put_thread(pkt_q, server_addr):
+def put_thread(pkt_q):
     w = pydivert.WinDivert("inbound and tcp")
     w.open()
 
@@ -49,7 +49,7 @@ def main():
     pkt_q = queue.Queue()
     tt = (
         startThread(target=run_thread, args=(pkt_q, )),
-        startThread(target=put_thread, args=(pkt_q, config['server_addr'])),
+        startThread(target=put_thread, args=(pkt_q, )),
     )
 
     printh('CapMain', 'Now on %s'%(str(CAP_IFACE)), 'green')

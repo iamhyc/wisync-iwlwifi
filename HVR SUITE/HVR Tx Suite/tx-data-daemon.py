@@ -1,10 +1,9 @@
 #! /usr/bin/python3
 
-import socket, time, queue, threading
+import socket, time, queue, threading, argparse
 from Utility import *
 import pydivert
 
-DBG = 0
 CAP_IFACE = 'Intel(R) Ethernet Connection I217-LM'
 PROXY_PORT = [10086, 10087]
 PROXY_ADDR = ['192.168.0.220', '192.168.0.221']
@@ -13,6 +12,7 @@ def get_raw(packet):
     return bytearray(packet.raw)
 
 def run_thread(pkt_q):
+    global vargs
     count, length = 0, 0
     skt = [udpWrapper(pt, type='tx') for pt in PROXY_PORT]
     
@@ -22,7 +22,7 @@ def run_thread(pkt_q):
         idx = PROXY_ADDR.index(p.dst_addr)
         skt[idx].send(p_data)
 
-        if DBG:
+        if vargs.DBG:
             count += 1
             length += len(p_data)
             remains = pkt_q.qsize()
@@ -57,7 +57,14 @@ def main():
     pass
 
 if __name__ == '__main__':
+    global vargs
     try:
+        parser = argparse.ArgumentParser(
+            description='VLC Tx Data Daemon.')
+        parser.add_argument('--debug', dest='DBG', action='store_true', default=False,
+            help='output debug message on the console.')
+        vargs = parser.parse_args()
+
         main()
     except Exception as e:
         printh('CapMain', e, 'red')

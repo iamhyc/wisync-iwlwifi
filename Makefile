@@ -34,7 +34,7 @@ clean:
 	$(MAKE) -C iwlsp clean
 
 route:
-	sudo route del default enp0s31f6
+	echo `sudo route del default enp0s31f6`
 
 start:route
 	$(MAKE) -C wlsops-hack insmod

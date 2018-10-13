@@ -13,15 +13,16 @@ build-dep:
 
 build-krn:
 	@echo "==================== [make] Building Kernel Module ===================="
-	$(MAKE) -C iwlnf SET=$(SET)
+	$(MAKE) -C intel-mvm -j7
 	$(MAKE) -C wlsops-hack build-krn
+	$(MAKE) -C iwlnf SET=$(SET)
 	@echo "======================= [make] Building Finished ======================="
 	@echo
 
 build-usr:
 	@echo "=================== [make] Building Control Programm ==================="
-	$(MAKE) -C iwlsp
 	$(MAKE) -C wlsops-hack build-usr
+	$(MAKE) -C iwlsp
 	@echo "======================= [make] Building Finished ======================="
 	@echo
 
@@ -33,16 +34,22 @@ clean:
 	$(MAKE) -C iwlnf clean
 	$(MAKE) -C iwlsp clean
 
+insmod:
+	@$(MAKE) -C intel-mvm rmmod && $(MAKE) -C intel-mvm insmod
+	@$(MAKE) -C wlsops-hack insmod
+
+rmmod:
+	@$(MAKE) -iC wlsops-hack rmmod
+	@$(MAKE) -C intel-mvm rmmod && $(MAKE) -C intel-mvm modprobe
+
 route:
 	@echo `sudo route del default enp0s31f6 2> /dev/null` >/dev/null
 	@echo "[route] default wired route deleted"
 
-start:route
-	@$(MAKE) -C wlsops-hack insmod
+start:route insmod
 	@$(MAKE) -C iwlnf insmod
 	@$(MAKE) -C iwlsp start
 
 stop:
 	@$(MAKE) -C iwlsp stop
 	@$(MAKE) -C iwlnf rmmod
-	@$(MAKE) -C wlsops-hack rmmod

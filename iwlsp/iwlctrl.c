@@ -180,14 +180,14 @@ void *ctrl_thread(void *arg)
             case 1://prior sleep
                 ++ stat;
                 gettimeofday((struct timeval *)&now, NULL);
-                w_setTxPrior(); //NOTE: priorized here
+                setTxPrior(); //NOTE: priorized here
                 timeadd_usec(&now, t_prior);
                 pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
                 break;
             case 2://reset sleep
                 -- stat; //loop
                 gettimeofday((struct timeval *)&now, NULL);
-                w_setTxNormal(); //NOTE: reset priority here
+                setTxNormal(); //NOTE: reset priority here
                 timeadd_usec(&now, t_reset);
                 pthread_cond_timedwait(&g_cond, &g_mutex, (struct timespec *)&now);
                 break;

@@ -3,8 +3,9 @@
 
 #include <inttypes.h>
 
-#define DBGFS_FILE  "wlsctrl"
+#define DBGFS_FILE  "/proc/wlsctrl"
 #define PAGE_SIZE   4096
+#define MAX_TIMEOUT 2000
 
 typedef union
 {
@@ -14,9 +15,16 @@ typedef union
     uint64_t long_ptr[2];
 }info_blk;
 
+struct mmap_info
+{
+    info_blk *blk;
+};
+
+int setTxPrior(void);
+int setTxNormal(void);
+int setTxLast(void);
+
 int w_init(void);
-int w_setTxPrior(void);
-int w_setTxNormal(void);
-int w_setTxLast(void);
+void w_fini(void);
 
 #endif

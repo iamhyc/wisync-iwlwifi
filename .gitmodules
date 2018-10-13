@@ -1,3 +1,6 @@
 [submodule "wlsops-hack"]
 	path = wlsops-hack
 	url = git@github.com:iamhyc/wlsops-hack.git
+[submodule "intel-mvm"]
+	path = intel-mvm
+	url = git@github.com:iamhyc/intel-mvm.git

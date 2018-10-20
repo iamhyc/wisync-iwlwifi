@@ -35,21 +35,24 @@ clean:
 	$(MAKE) -C iwlsp clean
 
 insmod:
-	@$(MAKE) -C intel-mvm rmmod && $(MAKE) -C intel-mvm insmod
-	@$(MAKE) -C wlsops-hack insmod
+	@$(MAKE) -iC intel-mvm rmmod && $(MAKE) -C intel-mvm insmod
+	@$(MAKE) -iC wlsops-hack insmod
 
 rmmod:
 	@$(MAKE) -iC wlsops-hack rmmod
-	@$(MAKE) -C intel-mvm rmmod && $(MAKE) -C intel-mvm modprobe
+	@$(MAKE) -iC intel-mvm rmmod && $(MAKE) -iC intel-mvm modprobe
+
+dmesg:
+	@sudo dmesg | grep --color "LAB1112:"
 
 route:
 	@echo `sudo route del default enp0s31f6 2> /dev/null` >/dev/null
 	@echo "[route] default wired route deleted"
 
-start:route insmod
+start:insmod route
 	@$(MAKE) -C iwlnf insmod
 	@$(MAKE) -C iwlsp start
 
-stop:
+stop:rmmod
 	@$(MAKE) -C iwlsp stop
 	@$(MAKE) -C iwlnf rmmod

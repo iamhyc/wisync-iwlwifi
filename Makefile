@@ -22,7 +22,6 @@ build-krn:
 build-usr:
 	@echo "=================== [make] Building Control Programm ==================="
 	$(MAKE) -C wlsops-hack build-usr
-	$(MAKE) -C iwlsp
 	@echo "======================= [make] Building Finished ======================="
 	@echo
 
@@ -32,7 +31,6 @@ install:
 
 clean:
 	$(MAKE) -C iwlnf clean
-	$(MAKE) -C iwlsp clean
 
 insmod:
 	@$(MAKE) -iC intel-mvm rmmod && $(MAKE) -C intel-mvm insmod
@@ -51,8 +49,6 @@ route:
 
 start:insmod route
 	@$(MAKE) -C iwlnf insmod
-	@$(MAKE) -C iwlsp start
 
 stop:rmmod
-	@$(MAKE) -C iwlsp stop
 	@$(MAKE) -C iwlnf rmmod
